@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MobileGPUTest - Mobile GPU & CPU Benchmark Tool</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Test your mobile device's GPU and CPU performance with real-time FPS metrics, thermal throttling detection, and shareable benchmark results. WebGPU and WebGL powered benchmarks.">
+    <meta name="keywords" content="mobile gpu benchmark, cpu test, fps test, webgpu benchmark, webgl test, mobile performance, gpu score, mobile benchmark tool, device performance test">
+    <meta name="author" content="MobileGPUTest">
+    <link rel="canonical" href="https://yourgithubusername.github.io/MobileGPTest/">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="MobileGPUTest - Mobile GPU & CPU Benchmark">
+    <meta property="og:description" content="Comprehensive mobile device performance testing with real-time FPS metrics and shareable results">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourgithubusername.github.io/MobileGPTest/">
+    <meta property="og:image" content="https://yourgithubusername.github.io/MobileGPTest/og-image.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MobileGPUTest - Mobile Benchmark">
+    <meta name="twitter:description" content="Test your mobile GPU and CPU performance">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "MobileGPUTest",
+      "description": "Mobile GPU and CPU benchmarking tool with real-time performance metrics",
+      "url": "https://yourgithubusername.github.io/MobileGPTest/",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": "FPS Testing, GPU Benchmarking, CPU Testing, Thermal Throttling Detection, Shareable Results"
+    }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #a0a0a0;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+        }
+        
+        .test-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        .test-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .test-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .quality-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .canvas-container {
+            position: relative;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 400px;
+            max-height: 70vh;
+        }
+        
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .fullscreen-btn:hover {
+            background: rgba(102, 126, 234, 0.8);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .device-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .device-info h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .info-label {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .info-value {
+            color: #e0e0e0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .share-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .share-section h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        .share-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .copy-btn {
+            margin-top: 10px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .thermal-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .thermal-low {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .thermal-medium {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+        
+        .thermal-high {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .test-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            canvas {
+                height: 300px;
+            }
+            
+            .metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MobileGPUTest</h1>
+            <p class="subtitle">Benchmark Your Mobile Device Performance</p>
+        </header>
+        
+        <div class="test-selector">
+            <button class="test-btn" data-test="fractal">Fractal Test</button>
+            <button class="test-btn" data-test="particle">Particle Physics</button>
+            <button class="test-btn" data-test="raymarching">Raymarching</button>
+            <button class="test-btn" data-test="fillrate">Fill Rate</button>
+            <button class="test-btn" data-test="cpu">CPU Test</button>
+            <button class="test-btn" data-test="thermal">Thermal Test</button>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>
+                    Render Quality: <span class="quality-value" id="qualityValue">Auto</span>
+                </label>
+                <input type="range" id="qualitySlider" min="1" max="4" value="0" step="1">
+            </div>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="benchmarkCanvas"></canvas>
+            <button class="fullscreen-btn" id="fullscreenBtn">⛶ Fullscreen</button>
+        </div>
+        
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-label">FPS</div>
+                <div class="metric-value" id="fpsValue">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Benchmark Score</div>
+                <div class="metric-value" id="scoreValue">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Quality Level</div>
+                <div class="metric-value" id="qualityLevel">Auto</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Thermal Status</div>
+                <div class="metric-value" id="thermalStatus">
+                    <span class="thermal-indicator thermal-low">Normal</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="device-info">
+            <h3>Device Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">GPU</span>
+                    <span class="info-value" id="gpuInfo">Detecting...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">CPU Cores</span>
+                    <span class="info-value" id="cpuCores">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">RAM</span>
+                    <span class="info-value" id="ramInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Screen</span>
+                    <span class="info-value" id="screenInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">OS</span>
+                    <span class="info-value" id="osInfo">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Browser</span>
+                    <span class="info-value" id="browserInfo">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="share-section">
+            <h3>Share Your Results</h3>
+            <input type="text" class="share-input" id="shareLink" readonly value="Run a test to generate shareable link">
+            <button class="copy-btn" id="copyBtn">Copy Link</button>
+        </div>
+    </div>
+    
+    <script>
+        // Global state
+        const state = {
+            currentTest: null,
+            fps: 0,
+            quality: 0,
+            score: 0,
+            isRunning: false,
+            frameCount: 0,
+            startTime: 0,
+            lastFpsUpdate: 0,
+            fpsHistory: [],
+            thermalStatus: 'low',
+            deviceInfo: {},
+            canvas: null,
+            ctx: null,
+            gl: null
+        };
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+        
+        function initializeApp() {
+            state.canvas = document.getElementById('benchmarkCanvas');
+            state.ctx = state.canvas.getContext('2d');
+            
+            detectDevice();
+            setAutoQuality();
+            loadFromURL();
+            setupEventListeners();
+            displayDeviceInfo();
+        }
+        
+        function detectDevice() {
+            const ua = navigator.userAgent;
+            const info = {};
+            
+            // Detect GPU
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    if (debugInfo) {
+                        info.gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    } else {
+                        info.gpu = 'WebGL Supported';
+                    }
+                } else {
+                    info.gpu = 'Unknown';
+                }
+            } catch (e) {
+                info.gpu = 'Unknown';
+            }
+            
+            // CPU Cores
+            info.cpuCores = navigator.hardwareConcurrency || 'Unknown';
+            
+            // RAM
+            info.ram = navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'Unknown';
+            
+            // Screen
+            info.screen = `${window.screen.width}x${window.screen.height}`;
+            
+            // OS
+            if (ua.includes('iPhone') || ua.includes('iPad')) {
+                info.os = 'iOS';
+            } else if (ua.includes('Android')) {
+                info.os = 'Android';
+            } else if (ua.includes('Windows')) {
+                info.os = 'Windows';
+            } else if (ua.includes('Mac')) {
+                info.os = 'macOS';
+            } else if (ua.includes('Linux')) {
+                info.os = 'Linux';
+            } else {
+                info.os = 'Unknown';
+            }
+            
+            // Browser
+            if (ua.includes('Chrome') && !ua.includes('Edge')) {
+                info.browser = 'Chrome';
+            } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                info.browser = 'Safari';
+            } else if (ua.includes('Firefox')) {
+                info.browser = 'Firefox';
+            } else if (ua.includes('Edge')) {
+                info.browser = 'Edge';
+            } else {
+                info.browser = 'Unknown';
+            }
+            
+            state.deviceInfo = info;
+        }
+        
+        function setAutoQuality() {
+            const slider = document.getElementById('qualitySlider');
+            if (slider.value !== '0') return;
+            
+            const ram = navigator.deviceMemory || 4;
+            const cores = navigator.hardwareConcurrency || 4;
+            const ua = navigator.userAgent;
+            
+            let quality = 2; // Default medium
+            
+            // High-end devices
+            if ((ua.includes('iPhone') && (ua.includes('iPhone 1') || ua.includes('iPhone 2'))) || 
+                ua.includes('iPad Pro') || 
+                (ram >= 8 && cores >= 8)) {
+                quality = 4;
+            }
+            // Mid-range
+            else if (ram >= 4 && cores >= 6) {
+                quality = 3;
+            }
+            // Low-end
+            else if (ram < 3 || cores < 4) {
+                quality = 1;
+            }
+            
+            state.quality = quality;
+            updateQualityDisplay();
+        }
+        
+        function updateQualityDisplay() {
+            const labels = ['Auto', 'Low', 'Medium', 'High', 'Ultra'];
+            const slider = document.getElementById('qualitySlider');
+            const value = parseInt(slider.value);
+            
+            if (value === 0) {
+                document.getElementById('qualityValue').textContent = `${labels[state.quality]} (Auto)`;
+                document.getElementById('qualityLevel').textContent = labels[state.quality];
+            } else {
+                state.quality = value;
+                document.getElementById('qualityValue').textContent = labels[value];
+                document.getElementById('qualityLevel').textContent = labels[value];
+            }
+        }
+        
+        function setupEventListeners() {
+            // Test buttons
+            document.querySelectorAll('.test-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const testType = btn.dataset.test;
+                    startTest(testType);
+                    
+                    document.querySelectorAll('.test-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+            
+            // Quality slider
+            document.getElementById('qualitySlider').addEventListener('input', updateQualityDisplay);
+            
+            // Fullscreen
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+            
+            // Copy button
+            document.getElementById('copyBtn').addEventListener('click', copyShareLink);
+        }
+        
+        function startTest(testType) {
+            if (state.isRunning) {
+                stopTest();
+            }
+            
+            state.currentTest = testType;
+            state.isRunning = true;
+            state.frameCount = 0;
+            state.startTime = performance.now();
+            state.lastFpsUpdate = state.startTime;
+            state.fpsHistory = [];
+            
+            resizeCanvas();
+            requestAnimationFrame(renderLoop);
+        }
+        
+        function stopTest() {
+            state.isRunning = false;
+        }
+        
+        function resizeCanvas() {
+            const rect = state.canvas.getBoundingClientRect();
+            state.canvas.width = rect.width * window.devicePixelRatio;
+            state.canvas.height = rect.height * window.devicePixelRatio;
+            state.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        
+        function renderLoop(timestamp) {
+            if (!state.isRunning) return;
+            
+            state.frameCount++;
+            
+            // Calculate FPS
+            if (timestamp - state.lastFpsUpdate >= 1000) {
+                state.fps = Math.round(state.frameCount * 1000 / (timestamp - state.lastFpsUpdate));
+                state.fpsHistory.push(state.fps);
+                if (state.fpsHistory.length > 10) state.fpsHistory.shift();
+                
+                state.frameCount = 0;
+                state.lastFpsUpdate = timestamp;
+                
+                updateMetrics();
+                detectThermalThrottling();
+            }
+            
+            // Render test
+            switch(state.currentTest) {
+                case 'fractal':
+                    renderFractal();
+                    break;
+                case 'particle':
+                    renderParticles(timestamp);
+                    break;
+                case 'raymarching':
+                    renderRaymarching(timestamp);
+                    break;
+                case 'fillrate':
+                    renderFillRate();
+                    break;
+                case 'cpu':
+                    renderCPUTest();
+                    break;
+                case 'thermal':
+                    renderThermalTest(timestamp);
+                    break;
+            }
+            
+            requestAnimationFrame(renderLoop);
+        }
+        
+        // Test implementations
+        function renderFractal() {
+            const ctx = state.ctx;
+            const w = state.canvas.width / window.devicePixelRatio;
+            const h = state.canvas.height / window.devicePixelRatio;
+            const scale = state.quality * 0.5;
+            const maxIter = 50 * state.quality;
+            
+            const imageData = ctx.createImageData(w, h);
+            const data = imageData.data;
+            
+            for (let y = 0; y < h; y += 1) {
+                for (let x = 0; x < w; x += 1) {
+                    const c_re = (x - w / 2) * 4 / w / scale;
+                    const c_im = (y - h / 2) * 4 / h / scale;
+                    let z_re = 0, z_im = 0;
+                    let iter = 0;
+                    
+                    while (z_re * z_re + z_im * z_im < 4 && iter < maxIter) {
+                        const tmp = z_re * z_re - z_im * z_im + c_re;
+                        z_im = 2 * z_re * z_im + c_im;
+                        z_re = tmp;
+                        iter++;
+                    }
+                    
+                    const idx = (y * w + x) * 4;
+                    const color = iter === maxIter ? 0 : (iter / maxIter) * 255;
+                    data[idx] = color * 0.5;
+                    data[idx + 1] = color * 0.8;
+                    data[idx + 2] = color;
+                    data[idx + 3] = 255;
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        let particles = [];
+        function renderParticles(timestamp) {
+            const ctx = state.ctx;
+            const w = state.canvas.width / window.devicePixelRatio;
+            const h = state.canvas.height / window.devicePixelRatio;
+            const count = 500 * state.quality;
+            
+            if (particles.length === 0) {
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * w,
+                        y: Math.random() * h,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: (Math.random() - 0.5) * 2,
+                        size: Math.random() * 3 + 1
+                    });
+                }
+            }
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, w, h);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > w) p.vx *= -1;
+                if (p.y < 0 || p.y > h) p.vy *= -1;
+                
+                ctx.fillStyle = `hsl(${(timestamp / 10 + p.x) % 360}, 70%, 60%)`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        function renderRaymarching(timestamp) {
+            const ctx = state.ctx;
+            const w = state.canvas.width / window.devicePixelRatio;
+            const h = state.canvas.height / window.devicePixelRatio;
+            const imageData = ctx.createImageData(w, h);
+            const data = imageData.data;
+            const t = timestamp / 1000;
+            
+            for (let y = 0; y < h; y += 2 / state.quality) {
+                for (let x = 0; x < w; x += 2 / state.quality) {
+                    const u = (x / w) * 2 - 1;
+                    const v = (y / h) * 2 - 1;
+                    
+                    let ro = { x: 0, y: 0, z: -5 };
+                    let rd = { x: u, y: v, z: 1 };
+                    
+                    let dist = 0;
+                    let steps = 0;
+                    const maxSteps = 32 * state.quality;
+                    
+                    while (dist < 20 && steps < maxSteps) {
+                        let p = {
+                            x: ro.x + rd.x * dist,
+                            y: ro.y + rd.y * dist,
+                            z: ro.z + rd.z * dist
+                        };
+                        
+                        let d = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z) - 1.5;
+                        dist += d;
+                        steps++;
+                        
+                        if (d < 0.01) break;
+                    }
+                    
+                    const brightness = steps < maxSteps ? (1 - steps / maxSteps) * 255 : 0;
+                    const idx = (Math.floor(y) * w + Math.floor(x)) * 4;
+                    data[idx] = brightness * 0.6;
+                    data[idx + 1] = brightness * 0.8;
+                    data[idx + 2] = brightness;
+                    data[idx + 3] = 255;
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        function renderFillRate() {
+            const ctx = state.ctx;
+            const w = state.canvas.width / window.devicePixelRatio;
+            const h = state.canvas.height / window.devicePixelRatio;
+            const layers = 20 * state.quality;
+            
+            for (let i = 0; i < layers; i++) {
+                const hue = (i / layers) * 360;
+                ctx.fillStyle = `hsla(${hue}, 70%, 60%, 0.1)`;
+                ctx.fillRect(0, 0, w, h);
+                
+                ctx.fillStyle = `hsla(${hue + 180}, 70%, 60%, 0.05)`;
+                ctx.fillRect(
+                    Math.sin(i * 0.5) * 50 + w / 4,
+                    Math.cos(i * 0.3) * 50 + h / 4,
+                    w / 2,
+                    h / 2
+                );
+            }
+        }
+        
+        function renderCPUTest() {
+            const ctx = state.ctx;
+            const w = state.canvas.width / window.devicePixelRatio;
+            const h = state.canvas.height / window.devicePixelRatio;
+            
+            // Heavy CPU computation
+            const iterations = 10000 * state.quality;
+            let sum = 0;
+            
+            for (let i = 0; i < iterations; i++) {
+                sum += Math.sqrt(i) * Math.sin(i) * Math.cos(i);
+                sum += Math.pow(i % 100, 2);
+            }
+            
+            // Visualization
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.fillStyle = '#667eea';
+            ctx.font = '20px monospace';
+            ctx.fillText(`CPU Iterations: ${iterations}`, 20, 40);
+            ctx.fillText(`Result: ${sum.toFixed(2)}`, 20, 70);
+            
+            // Draw some patterns
+            for (let i = 0; i < 50; i++) {
+                const x = (Math.sin(i + sum * 0.001) * 0.5 + 0.5) * w;
+                const y = (Math.cos(i * 1.5 + sum * 0.001) * 0.5 + 0.5) * h;
+                const size = Math.abs(Math.sin(i * 0.5)) * 20 + 5;
+                
+                ctx.fillStyle = `hsla(${(i * 7) % 360}, 70%, 60%, 0.6)`;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        function renderThermalTest(timestamp) {
+            // Combines all tests for maximum stress
+            const choice = Math.floor(timestamp / 2000) % 4;
+            
+            switch(choice) {
+                case 0:
+                    renderFractal();
+                    break;
+                case 1:
+                    renderParticles(timestamp);
+                    break;
+                case 2:
+                    renderFillRate();
+                    break;
+                case 3:
+                    renderCPUTest();
+                    break;
+            }
+        }
+        
+        function updateMetrics() {
+            document.getElementById('fpsValue').textContent = state.fps;
+            
+            // Calculate score: FPS × Quality × Factor
+            const factor = {
+                'fractal': 1.2,
+                'particle': 1.0,
+                'raymarching': 1.5,
+                'fillrate': 0.8,
+                'cpu': 1.3,
+                'thermal': 1.1
+            };
+            
+            state.score = Math.round(state.fps * state.quality * (factor[state.currentTest] || 1));
+            document.getElementById('scoreValue').textContent = state.score;
+            
+            updateShareLink();
+        }
+        
+        function detectThermalThrottling() {
+            if (state.fpsHistory.length < 5) return;
+            
+            const recent = state.fpsHistory.slice(-3);
+            const initial = state.fpsHistory.slice(0, 3);
+            
+            const avgRecent = recent.reduce((a, b) => a + b, 0) / recent.length;
+            const avgInitial = initial.reduce((a, b) => a + b, 0) / initial.length;
+            
+            const drop = ((avgInitial - avgRecent) / avgInitial) * 100;
+            
+            let status = 'low';
+            let statusText = 'Normal';
+            let statusClass = 'thermal-low';
+            
+            if (drop > 30) {
+                status = 'high';
+                statusText = 'High Throttle';
+                statusClass = 'thermal-high';
+            } else if (drop > 15) {
+                status = 'medium';
+                statusText = 'Moderate';
+                statusClass = 'thermal-medium';
+            }
+            
+            state.thermalStatus = status;
+            
+            const indicator = document.getElementById('thermalStatus');
+            indicator.innerHTML = `<span class="thermal-indicator ${statusClass}">${statusText}</span>`;
+        }
+        
+        function updateShareLink() {
+            if (!state.currentTest) return;
+            
+            const baseUrl = window.location.origin + window.location.pathname;
+            const params = new URLSearchParams({
+                test: state.currentTest,
+                fps: state.fps,
+                quality: state.quality,
+                score: state.score,
+                thermal: state.thermalStatus,
+                gpu: state.deviceInfo.gpu || 'unknown',
+                cpu: state.deviceInfo.cpuCores || 'unknown'
+            });
+            
+            const shareUrl = `${baseUrl}?${params.toString()}`;
+            document.getElementById('shareLink').value = shareUrl;
+        }
+        
+        function loadFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            
+            if (params.has('test')) {
+                // Display shared results
+                const test = params.get('test');
+                const fps = params.get('fps');
+                const quality = params.get('quality');
+                const score = params.get('score');
+                const thermal = params.get('thermal');
+                
+                document.getElementById('fpsValue').textContent = fps || '0';
+                document.getElementById('scoreValue').textContent = score || '0';
+                document.getElementById('qualityLevel').textContent = ['', 'Low', 'Medium', 'High', 'Ultra'][quality] || 'Auto';
+                
+                if (thermal) {
+                    const statusMap = {
+                        'low': ['Normal', 'thermal-low'],
+                        'medium': ['Moderate', 'thermal-medium'],
+                        'high': ['High Throttle', 'thermal-high']
+                    };
+                    
+                    const [text, className] = statusMap[thermal] || statusMap['low'];
+                    document.getElementById('thermalStatus').innerHTML = 
+                        `<span class="thermal-indicator ${className}">${text}</span>`;
+                }
+            }
+        }
+        
+        function displayDeviceInfo() {
+            document.getElementById('gpuInfo').textContent = state.deviceInfo.gpu || 'Unknown';
+            document.getElementById('cpuCores').textContent = state.deviceInfo.cpuCores || 'Unknown';
+            document.getElementById('ramInfo').textContent = state.deviceInfo.ram || 'Unknown';
+            document.getElementById('screenInfo').textContent = state.deviceInfo.screen || 'Unknown';
+            document.getElementById('osInfo').textContent = state.deviceInfo.os || 'Unknown';
+            document.getElementById('browserInfo').textContent = state.deviceInfo.browser || 'Unknown';
+        }
+        
+        function toggleFullscreen() {
+            const container = document.querySelector('.canvas-container');
+            
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        function copyShareLink() {
+            const input = document.getElementById('shareLink');
+            input.select();
+            input.setSelectionRange(0, 99999); // Mobile
+            
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+            });
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (state.isRunning) {
+                resizeCanvas();
+            }
+        });
+    </script>
+</body>
+</html>
